@@ -3,6 +3,7 @@ words = []
 for i in range(0,5359):
     print('reading file', i+1, end='\r')
     try:
+        # it is necessary to download the corpus manually, we maybe should write a script for that.
         with open('./corpus2mw/fil_' + str(i+1)) as file:
             for line in file:
                 if ';' in line:
