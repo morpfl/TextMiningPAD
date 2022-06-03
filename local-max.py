@@ -1,69 +1,23 @@
 words = []
 
+special_characters = [';', '.', ':', '!', '?', '<', '>', '&', '(', ')', '[', ']', '\n', ',']
+
 for i in range(0,5359):
     print('reading file', i+1, end='\r')
     try:
         # it is necessary to download the corpus manually, we maybe should write a script for that.
         with open('./corpus2mw/fil_' + str(i+1)) as file:
             for line in file:
-                if ';' in line:
-                    char_index = line.index(';')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '.' in line:
-                    char_index = line.index('.')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if ':' in line:
-                    char_index = line.index(':')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '!' in line:
-                    char_index = line.index('!')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '?' in line:
-                    char_index = line.index('?')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '<' in line:
-                    char_index = line.index('<')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '>' in line:
-                    char_index = line.index('>')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '&' in line:
-                    char_index = line.index('&')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '(' in line:
-                    char_index = line.index('(')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if ')' in line:
-                    char_index = line.index(')')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '[' in line:
-                    char_index = line.index('[')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if ']' in line:
-                    char_index = line.index(']')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
-                if '\n' in line:
-                    char_index = line.index('\n')
-                    line = line[:char_index+1] + ' ' + line[char_index+1:] 
-                    line = line[:char_index] + ' ' + line[char_index:]
+                for character in special_characters:
+                    if character in line:
+                        char_index = line.index(character)
+                        line = line[:char_index] + ' ' + line[char_index:]
+                        line = line[:char_index+1] + ' ' + line[char_index+1:] 
                 words.extend(line.split(' '))
     except OSError as e:
         continue
+words = list(filter(lambda w: w != '', words))
 print('Words with escaped special characters: ', len(words))
-words = list(filter(lambda x: x != '' and x != ';' and x != ':' and x != '!' and x != '?' and x != '<' and x != '>' and x != '(' and x != ')' and x != ']' and x != '[' and x != '\n', words))
-print('Words cleaned: ', len(words))
 
 def calculate_relative_frequency_of_nGram(nGram):
     nGramOccurrenceInCorpus = len([nGram for idx in range(len(words)) if words[idx : idx + len(nGram)] == nGram])
