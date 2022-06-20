@@ -179,3 +179,52 @@ def local_max(corpus, max_re_size, n_gram_freq_dict, glue):
         relevant_expressions += calculate_local_max_fixed_size(re_size, n_gram_freq_dict, containing_n_grams, contained_n_grams, glue)
     
     return relevant_expressions
+
+def stop_words_filter(corpus, relevant_expressions):
+    #corpus_words = set(word for doc_list in corpus.values() for word in doc_list)
+    
+    neighbour_dict = defaultdict(set)
+    
+    for doc_name, doc in corpus.items():
+        for word_index in range(0, len(doc)):
+            
+            word = doc[word_index]
+            
+            if word_index != 0:
+                right_neighbour = doc[word_index - 1]
+                neighbour_dict[word].add(right_neighbour)
+            if word_index != len(doc) - 1:
+                left_neighbour = doc[word_index + 1]
+                neighbour_dict[word].add(left_neighbour)
+            
+    neighbour_counts = []
+    
+    for word, neighbours in neighbour_dict.items():
+        neighbour_counts.append((len(neighbours), word))
+        
+    neighbour_counts.sort(reverse=True)
+    
+    # find elbow point
+    elbow_point_index = 0
+    max_tangens = 0
+    for index in range(0, len(neighbour_counts) - 1):
+        cur_neighbour_count = neighbour_counts[index][0]
+        next_neighbour_count = neighbour_counts[index + 1][0]
+        neighbour_diff = cur_neighbour_count - next_neighbour_count #list is sorted decreasing
+        tangens_diff = abs(math.tan(cur_neighbour_count + neighbour_diff) - math.tan(cur_neighbour_count))
+        
+        if tangens_diff > max_tangens:
+            elbow_point_index = index
+            max_tangens = tangens_diff
+    
+    stop_word_counts = neighbour_counts[: elbow_point_index + 1]
+    
+    stop_words = [stop_word_count[1] for stop_word_count in stop_word_counts]
+    
+    filtered_relevant_expressions = []
+    for re in relevant_expressions:
+        if re[0] in stop_words or re[-1] in stop_words:
+            continue
+        filtered_relevant_expressions.append(re)
+    
+    return stop_words, filtered_relevant_expressions
